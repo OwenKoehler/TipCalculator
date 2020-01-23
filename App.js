@@ -42,6 +42,7 @@ import {
 
 function App() {
   const [tipPercent, setTipPercent] = useState(10);
+  const [input, setInput] = useState('');
   const [preTotal, setPreTotal] = useState(0);
   const [postTotal, setPostTotal] = useState(0);
   const [tipAmount, setTipAmount] = useState(0);
@@ -54,10 +55,15 @@ function App() {
   ];
 
   useEffect(() => {
-    console.log('UE');
+    console.log('Called UseEffect()');
     setTipAmount((preTotal * tipPercent) / 100);
     setPostTotal(preTotal + tipAmount);
   }, [preTotal, tipPercent, tipAmount]);
+
+  const displayAmount = amount => {
+    if (isNaN(amount)) return '--';
+    return amount.toFixed(2);
+  };
 
   return (
     <Container>
@@ -69,29 +75,67 @@ function App() {
 
       <Container style={styles.body}>
         <Content>
-          <Item floatingLabel style={styles.input}>
-            <Label>Enter your pre-tip total</Label>
-            <Input
-              keyboardType="numeric"
-              numeric
-              value={preTotal.toString()}
-              onChange={event => {
-                setPreTotal(parseFloat(event.nativeEvent.text));
-              }}
-            />
-          </Item>
+          <View style={styles.inputContainer}>
+            <Item floatingLabel>
+              <Label style={styles.inputLabel}>Enter your pre-tip total</Label>
+              <Input
+                keyboardType="numeric"
+                numeric
+                style={styles.inputText}
+                value={input}
+                onChange={event => {
+                  setInput(event.nativeEvent.text);
+                  setPreTotal(parseFloat(event.nativeEvent.text));
+                }}
+              />
+            </Item>
+          </View>
 
-          <Text>{tipPercent}</Text>
-          <RadioForm
+          {/* <RadioForm
+            style={styles.tipRadio}
             radio_props={radio_props}
             formHorizontal={true}
             labelHorizontal={false}
+            buttonSize={40}
             onPress={value => {
               setTipPercent(value);
             }}
-          />
-          <Text>Tip: {tipAmount}</Text>
-          <Text>Total: {postTotal}</Text>
+          /> */}
+
+          <RadioForm
+            style={styles.tipRadioForm}
+            formHorizontal={true}
+            animation={true}>
+            {/* To create radio buttons, loop through your array of options */}
+            {radio_props.map((obj, i) => (
+              <RadioButton labelHorizontal={false} key={i}>
+                {/*  You can set RadioButtonLabel before RadioButtonInput */}
+                <RadioButtonInput
+                  obj={obj}
+                  index={i}
+                  isSelected={tipPercent === obj.value}
+                  buttonSize={40}
+                  buttonWrapStyle={{marginLeft: 10, marginRight: 10}}
+                  onPress={value => {
+                    setTipPercent(value);
+                  }}
+                />
+                <RadioButtonLabel
+                  obj={obj}
+                  index={i}
+                  labelHorizontal={false}
+                  labelStyle={{fontSize: 20}}
+                  labelWrapStyle={{marginLeft: 0, marginTop: 10}}
+                  style={styles.radioButtonLabel}
+                />
+              </RadioButton>
+            ))}
+          </RadioForm>
+
+          <Text style={styles.tipAmount}>Tip: {displayAmount(tipAmount)}</Text>
+          <Text style={styles.postTotal}>
+            Total: {displayAmount(postTotal)}
+          </Text>
         </Content>
       </Container>
     </Container>
@@ -102,47 +146,37 @@ const styles = StyleSheet.create({
   body: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'stretch',
+    marginTop: '10%',
   },
-  input: {
-    
+  inputContainer: {
+    marginHorizontal: '8%',
+    padding: '4%',
+    fontSize: 25,
   },
-  // scrollView: {
-  //   backgroundColor: Colors.lighter,
-  // },
-  // engine: {
-  //   position: 'absolute',
-  //   right: 0,
-  // },
-  // body: {
-  //   backgroundColor: Colors.white,
-  // },
-  // sectionContainer: {
-  //   marginTop: 32,
-  //   paddingHorizontal: 24,
-  // },
-  // sectionTitle: {
-  //   fontSize: 24,
-  //   fontWeight: '600',
-  //   color: Colors.black,
-  // },
-  // sectionDescription: {
-  //   marginTop: 8,
-  //   fontSize: 18,
-  //   fontWeight: '400',
-  //   color: Colors.dark,
-  // },
-  // highlight: {
-  //   fontWeight: '700',
-  // },
-  // footer: {
-  //   color: Colors.dark,
-  //   fontSize: 12,
-  //   fontWeight: '600',
-  //   padding: 4,
-  //   paddingRight: 12,
-  //   textAlign: 'right',
-  // },
+  inputLabel: {
+    fontSize: 25,
+  },
+  inputText: {
+    fontSize: 25,
+    marginBottom: 10,
+    marginTop: 20,
+  },
+  tipRadioForm: {
+    margin: '8%',
+    alignSelf: 'center',
+  },
+  tipAmount: {
+    margin: '8%',
+    fontSize: 25,
+  },
+  postTotal: {
+    margin: '8%',
+    fontSize: 25,
+  },
+  radioButtonWrap: {
+    marginRight: '10em',
+  },
 });
 
 export default App;
